@@ -2,7 +2,7 @@
 
 A full-stack **Retrieval-Augmented Generation (RAG)** application that lets you have intelligent conversations with your own documents (PDF/DOCX). Upload a file, ask questions in natural language, and get accurate, context-aware answers powered by OpenAI — with source citations included.
 
-![DocChat UI](ui.png)
+![DocChat UI](DocChat.gif)
 
 ---
 
