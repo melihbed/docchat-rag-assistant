@@ -116,25 +116,6 @@ User Upload (PDF/DOCX)
 
 ---
 
-## 📂 Project Structure
-
-```
-rag-personal-assistant/
-├── api/                    # FastAPI backend
-│   └── main.py             # API routes (/upload, /query)
-├── web/                    # React frontend
-│   └── src/
-│       └── App.jsx         # Main chat interface
-├── chroma_langchain_db/    # Persistent vector store
-├── main.py                 # Application entry point
-├── rag_agent.py            # RAG orchestration logic
-├── rag_gensim.py           # Gensim/GloVe word embeddings
-├── semantic_search.py      # Semantic search utilities
-└── pyproject.toml          # Dependencies
-```
-
----
-
 ## 💡 How It Works
 
 1. **Upload** a PDF or DOCX document via the UI
@@ -146,15 +127,7 @@ rag-personal-assistant/
 
 ---
 
-## 🔮 Future Improvements
 
-- [ ] Multi-document support and cross-document queries
-- [ ] Streaming responses for real-time output
-- [ ] User authentication and personal document vaults
-- [ ] Support for more file formats (Excel, PowerPoint, TXT)
-- [ ] Hybrid search (semantic + keyword BM25)
-
----
 
 ## 📝 License
 
