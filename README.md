@@ -43,30 +43,39 @@ The prompt tells the model to answer only from the retrieved context, and every 
 | Vector store | ChromaDB |
 | Models | OpenAI, Hugging Face sentence-transformers, Ollama (Llama 3) |
 | Frontend | React 19, Vite, Axios |
+| Packaging | Docker, Docker Compose, nginx |
 
 ## Getting started
 
-### Prerequisites
+### Option 1: Docker (one command)
 
-- Python 3.12+
-- Node.js 18+
-- An OpenAI API key (default models), or Ollama for a fully local setup
-
-### Backend
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
 ```bash
 git clone https://github.com/melihbed/docchat-rag-assistant.git
-cd docchat-rag-assistant/api
+cd docchat-rag-assistant
+cp .env.example .env            # add your OPENAI_API_KEY
+docker compose up --build       # open http://localhost:3004
+```
+
+The stack runs two containers: the FastAPI backend and an nginx container that serves the React build and proxies `/api` to the backend. The vector store, uploaded files, and the embedding-model cache live in named volumes, so they survive restarts.
+
+### Option 2: Run locally
+
+**Backend**
+
+```bash
+cd api
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-export OPENAI_API_KEY=sk-...    # read from the environment by the OpenAI client
+export OPENAI_API_KEY=sk-...
 uvicorn main:app --reload       # http://localhost:8000
 ```
 
-### Frontend
+**Frontend**
 
 ```bash
-cd ../web
+cd web
 npm install
 npm run dev                     # http://localhost:3004 (proxies /api to :8000)
 ```
@@ -75,4 +84,3 @@ npm run dev                     # http://localhost:3004 (proxies /api to :8000)
 
 - Conversation memory for follow-up questions
 - Retrieval evaluation set (hit rate and answer faithfulness)
-- Docker Compose for one-command startup

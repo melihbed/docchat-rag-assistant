@@ -1,0 +1,23 @@
+services:
+  api:
+    build: ./api
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY in .env}
+    volumes:
+      - chroma:/app/chroma.db          # vector store survives restarts
+      - uploads:/app/docs              # uploaded source files
+      - hf-cache:/root/.cache/huggingface
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    ports:
+      - "3004:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  chroma:
+  uploads:
+  hf-cache:

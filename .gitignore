@@ -1,0 +1,12 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Local data created by the API
+chroma.db/
+api/chroma.db/
+api/docs/

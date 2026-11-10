@@ -1,11 +1,17 @@
-fastapi
-uvicorn[standard]
-python-multipart
-langchain-community
-langchain-text-splitters
-langchain-openai
-langchain-chroma
-langchain-huggingface
-sentence-transformers
-pypdf
-docx2txt
+# Web API
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+python-multipart>=0.0.9
+
+# LangChain 0.3 family (main.py uses langchain_community.llms.Ollama and
+# langchain_community.embeddings.HuggingFaceEmbeddings, which exist in 0.3.x)
+langchain-core>=0.3,<0.4
+langchain-community>=0.3,<0.4
+langchain-text-splitters>=0.3,<0.4
+langchain-openai>=0.3,<0.4
+langchain-chroma>=0.2,<0.3
+
+# Embeddings and document loaders
+sentence-transformers>=3.0,<6.0
+pypdf>=4.0,<7.0
+docx2txt>=0.8
