@@ -1,138 +1,78 @@
-# 🤖 DocChat — RAG Personal Assistant
+# DocChat — RAG Document Assistant
 
-A full-stack **Retrieval-Augmented Generation (RAG)** application that lets you have intelligent conversations with your own documents (PDF/DOCX). Upload a file, ask questions in natural language, and get accurate, context-aware answers powered by OpenAI — with source citations included.
+Ask questions about your own PDF and DOCX files and get answers grounded in the documents, with the source passages cited.
 
-![DocChat UI](DocChat.gif)
-
----
-
-## ✨ Features
-
-- 📄 **Document Upload** — Supports PDF and DOCX files
-- 🔍 **Semantic Search** — Finds the most relevant document chunks using vector similarity
-- 🧠 **RAG Pipeline** — Grounds LLM responses in your actual document content
-- 💬 **Conversational Interface** — Clean chat UI built with React + Vite
-- 📌 **Source Citations** — Every answer links back to the source chunks used
-- 🗄️ **Vector Store** — Persistent embeddings via ChromaDB + LangChain
-- 🔡 **Word Embeddings** — GloVe/Gensim integration for semantic understanding
+![DocChat demo](DocChat.gif)
 
 ---
 
-## 🏗️ Tech Stack
+## How it works
+
+```
+Upload ──► load (PyPDF / docx2txt) ──► split into 1,000-char chunks (200 overlap)
+       ──► embed ──► ChromaDB (persisted to disk)
+
+Question ──► embed ──► top-4 similar chunks ──► grounding prompt ──► LLM ──► answer + sources
+```
+
+The prompt tells the model to answer only from the retrieved context, and every response returns the source files of the chunks it used.
+
+## Features
+
+- Upload PDF and DOCX files; chunks are stored in a persistent ChromaDB collection.
+- Semantic retrieval (top-4 chunks) with source citations in each answer.
+- Swappable models behind one API:
+  - Embeddings: OpenAI `text-embedding-3-large` or Hugging Face `all-MiniLM-L6-v2`
+  - LLMs: OpenAI `gpt-4o-mini` or a local Llama 3 through Ollama
+- Async FastAPI endpoints and a React chat UI.
+
+## API
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/upload` | Upload a PDF/DOCX file, chunk it, and index it |
+| `POST` | `/query` | Ask a question; returns the answer and its sources |
+| `GET` | `/documents` | List indexed documents |
+| `POST` | `/clear` | Remove all documents and reset the vector store |
+
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React, Vite |
-| Backend | Python (FastAPI) |
-| LLM | OpenAI API (GPT) |
-| Vector Store | ChromaDB + LangChain |
-| Embeddings | OpenAI Embeddings + Gensim (GloVe) |
-| Document Parsing | LangChain document loaders |
-| Database | PostgreSQL |
+| Backend | Python, FastAPI, LangChain |
+| Vector store | ChromaDB |
+| Models | OpenAI, Hugging Face sentence-transformers, Ollama (Llama 3) |
+| Frontend | React 19, Vite, Axios |
 
----
-
-## 🚀 Getting Started
+## Getting started
 
 ### Prerequisites
 
 - Python 3.12+
 - Node.js 18+
-- PostgreSQL
-- OpenAI API Key
+- An OpenAI API key (default models), or Ollama for a fully local setup
 
-### Installation
+### Backend
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/rag-personal-assistant.git
-cd rag-personal-assistant
-
-# Backend setup
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+git clone https://github.com/melihbed/docchat-rag-assistant.git
+cd docchat-rag-assistant/api
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-# Frontend setup
-cd web
-npm install
+export OPENAI_API_KEY=sk-...    # read from the environment by the OpenAI client
+uvicorn main:app --reload       # http://localhost:8000
 ```
 
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-DATABASE_URL=postgresql://user:password@localhost:5432/ragdb
-```
-
-### Running the App
+### Frontend
 
 ```bash
-# Start the backend API (from root)
-python main.py
-
-# Start the frontend (in a separate terminal)
-cd web
-npm run dev
+cd ../web
+npm install
+npm run dev                     # http://localhost:3004 (proxies /api to :8000)
 ```
 
-The app will be available at `http://localhost:3004`.
+## Roadmap
 
----
-
-## 📐 Architecture
-
-```
-User Upload (PDF/DOCX)
-        │
-        ▼
-  Document Loader (LangChain)
-        │
-        ▼
-  Text Chunking (26 chunks)
-        │
-        ▼
-  OpenAI Embeddings
-        │
-        ▼
-  ChromaDB Vector Store ──────────────────┐
-                                          │
-  User Query ──► Embed Query ──► Similarity Search
-                                          │
-                                          ▼
-                              Top-K Relevant Chunks
-                                          │
-                                          ▼
-                              Build Prompt + Context
-                                          │
-                                          ▼
-                                  OpenAI GPT API
-                                          │
-                                          ▼
-                              Answer + Source Citations
-```
-
----
-
-## 💡 How It Works
-
-1. **Upload** a PDF or DOCX document via the UI
-2. The backend **parses and chunks** the document into segments
-3. Each chunk is **embedded** using OpenAI's embedding model and stored in ChromaDB
-4. When you ask a question, it's **embedded** and compared against stored vectors
-5. The **top matching chunks** are retrieved and injected into the LLM prompt
-6. OpenAI generates an answer **grounded in your document**, with source references returned to the UI
-
----
-
-
-
-## 📝 License
-
-MIT License — feel free to use, modify, and distribute.
-
----
-
-> Built with ❤️ using LangChain, ChromaDB, OpenAI, and React.
+- Conversation memory for follow-up questions
+- Retrieval evaluation set (hit rate and answer faithfulness)
+- Docker Compose for one-command startup
